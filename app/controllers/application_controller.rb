@@ -1,7 +1,7 @@
-class ApplicationController < ActionController::Base
-   JWT_SECRET = Rails.application.credentials.secret_key_base || "dev_secret_key"
+class ApplicationController < ActionController::API
+  JWT_SECRET = Rails.application.credentials.secret_key_base || "dev_secret_key"
 
-   def authenticate_user
+  def authenticate_user
     header = request.headers["Authorization"]
     token = header.split(" ").last rescue nil
 
@@ -12,7 +12,4 @@ class ApplicationController < ActionController::Base
       render json: { error: "Unauthorized" }, status: :unauthorized
     end
   end
-
-  allow_browser versions: :modern
-  protect_from_forgery with: :exception, unless: -> { request.format.json? }
 end

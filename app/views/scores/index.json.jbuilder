@@ -1,3 +1,6 @@
-json.array! @scores.each_with_index do |score, index|
-  json.partial! "scores/score", locals: { score: score, index: index }
+json.array! @scores do |score|
+  json.id          score.id
+  json.value       score.value
+  json.username    score.user.username
+  json.created_at  score.created_at
 end
