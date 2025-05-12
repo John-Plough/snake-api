@@ -5,5 +5,8 @@ Rails.application.routes.draw do
 
   post "/scores" => "scores#create"
   get "/scores" => "scores#index"
-  get "/users/:user_id/scores", to: "scores#user_scores"
+  get "/users/:user_id/scores" => "scores#user_scores"
+
+  post "/login" => "sessions#create"
+  delete "/logout" => "sessions#destroy"
 end

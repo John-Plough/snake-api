@@ -18,7 +18,9 @@ test "create" do
   )
 
   assert_difference "Score.count", 1 do
-    post "/scores.json", params: { value: 10, user_id: user.id }
+    post "/scores.json",
+        params: { value: 10 },
+        headers: { "Authorization" => "Bearer #{token}" }
     assert_response :success
   end
 end

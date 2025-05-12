@@ -1,15 +1,18 @@
 class ScoresController < ApplicationController
+  before_action :authenticate_user, only: [ :create ]
   def index
-    @scores = Score.all
+    @scores = Score.includes(:user).order(value: :desc).limit(10)
     render :index
   end
 
   def create
-    @score = Score.create(
-      value: params[:value],
-      user_id: params[:user_id]
-    )
-    render :show
+    @score = @current_user.scores.create(value: params[:value])
+
+    if @score.persisted?
+      render :show, status: :created
+    else
+      render json: { errors: @score.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   def user_scores
