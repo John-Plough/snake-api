@@ -1,5 +1,5 @@
 # Clear existing data (optional but useful during development)
-User.destroy_all
+# User.destroy_all
 
 # Create sample users
 users = [
