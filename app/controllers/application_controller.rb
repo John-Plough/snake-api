@@ -1,15 +1,14 @@
 class ApplicationController < ActionController::API
-  JWT_SECRET = Rails.application.credentials.secret_key_base || "dev_secret_key"
+  include ActionController::Cookies
+  include ActionController::RequestForgeryProtection
 
   def authenticate_user
-    header = request.headers["Authorization"]
-    token = header.split(" ").last rescue nil
-
-    begin
-      decoded = JWT.decode(token, JWT_SECRET, true, algorithm: "HS256")
-      @current_user = User.find(decoded[0]["user_id"])
-    rescue JWT::DecodeError, ActiveRecord::RecordNotFound
-      render json: { error: "Unauthorized" }, status: :unauthorized
+    unless current_user
+      render json: { error: "You must be logged in" }, status: :unauthorized
     end
+  end
+
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
   end
 end

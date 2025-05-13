@@ -1,18 +1,32 @@
 class ScoresController < ApplicationController
-  before_action :authenticate_user, only: [ :create ]
+  include ActionController::Cookies
+  before_action :authenticate_user, except: [ :global ]
+
   def index
     @scores = Score.includes(:user).order(value: :desc).limit(10)
     render :index
   end
 
   def create
-    @score = @current_user.scores.create(value: params[:value])
+    score = @current_user.scores.create!(score_params)
+    render json: score, status: :created
+  end
 
-    if @score.persisted?
-      render :show, status: :created
-    else
-      render json: { errors: @score.errors.full_messages }, status: :unprocessable_entity
-    end
+  def personal
+    scores = @current_user.scores
+                        .order(value: :desc)
+                        .limit(6)
+                        .select("scores.*, users.username")
+                        .joins(:user)
+    render json: scores
+  end
+
+  def global
+    scores = Score.order(value: :desc)
+                 .limit(6)
+                 .select("scores.*, users.username")
+                 .joins(:user)
+    render json: scores
   end
 
   def user_scores
@@ -24,5 +38,21 @@ class ScoresController < ApplicationController
     else
       render json: { error: "User not found" }, status: :not_found
     end
+  end
+
+  private
+
+  def authenticate_user
+    unless current_user
+      render json: { error: "You must be logged in" }, status: :unauthorized
+    end
+  end
+
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+  end
+
+  def score_params
+    params.require(:score).permit(:value)
   end
 end
