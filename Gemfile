@@ -64,3 +64,10 @@ end
 
 gem "jwt"
 gem "rack-cors"
+
+# Auth
+gem "omniauth"
+gem "omniauth-github"
+gem "omniauth-google-oauth2"
+gem "omniauth-rails_csrf_protection"
+gem "dotenv-rails"

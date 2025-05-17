@@ -4,10 +4,7 @@ class SessionsController < ApplicationController
     user = User.find_by(email: params[:email])
 
     if user&.authenticate(params[:password])
-      # Store the user ID in the session
       session[:user_id] = user.id
-
-      # Return user info
       render json: {
         user: {
           id: user.id,

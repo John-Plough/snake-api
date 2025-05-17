@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_12_171634) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_17_004350) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -28,6 +28,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_12_171634) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "github_uid"
+    t.string "google_uid"
+    t.index ["github_uid"], name: "index_users_on_github_uid", unique: true
+    t.index ["google_uid"], name: "index_users_on_google_uid", unique: true
   end
 
   add_foreign_key "scores", "users"

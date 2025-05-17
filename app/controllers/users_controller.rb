@@ -2,7 +2,14 @@ class UsersController < ApplicationController
   def create
     @user = User.new(user_params)
     if @user.save
-      render :show, status: :created
+      session[:user_id] = @user.id
+      render json: {
+        user: {
+          id: @user.id,
+          email: @user.email,
+          username: @user.username
+        }
+      }, status: :created
     else
       render json: { errors: @user.errors.full_messages }, status: :unprocessable_entity
     end
