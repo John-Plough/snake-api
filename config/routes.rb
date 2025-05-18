@@ -13,9 +13,7 @@ Rails.application.routes.draw do
   post "/scores" => "scores#create"
 
   # OAuth routes
-  post "/auth/github", to: redirect("/auth/github")
-  post "/auth/google_oauth2", to: redirect("/auth/google_oauth2")
-  get "/auth/github/callback", to: "auth#github"
-  get "/auth/google_oauth2/callback", to: "auth#google"
+  get "/auth/:provider/callback", to: "auth#oauth_callback"
+  post "/auth/:provider", to: "auth#oauth"
   get "/auth/check", to: "auth#check"
 end
