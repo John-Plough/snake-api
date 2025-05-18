@@ -69,15 +69,23 @@ class AuthController < ApplicationController
   end
 
   def google
+    Rails.logger.info "========== Google OAuth Debug =========="
+    Rails.logger.info "Request Origin: #{request.origin}"
+    Rails.logger.info "Request Referrer: #{request.referrer}"
+    Rails.logger.info "Origin Param: #{params[:origin]}"
+
     auth_hash = request.env["omniauth.auth"]
     Rails.logger.info "Google OAuth Info: #{auth_hash["info"].inspect}"
+    Rails.logger.info "OAuth Origin: #{request.env['omniauth.origin']}"
 
     # First try to find user by Google UID
     user = User.find_by(google_uid: auth_hash["uid"])
+    Rails.logger.info "Found user by Google UID: #{!!user}"
 
     unless user
       # Check if email is already taken
       existing_user = User.find_by(email: auth_hash["info"]["email"])
+      Rails.logger.info "Found existing user by email: #{!!existing_user}"
 
       if existing_user
         Rails.logger.info "Found existing user with email #{existing_user.email}"
@@ -93,6 +101,7 @@ class AuthController < ApplicationController
         end
       else
         # Create new user if email not taken
+        Rails.logger.info "Creating new user with email: #{auth_hash["info"]["email"]}"
         user = User.create(
           email: auth_hash["info"]["email"],
           username: auth_hash["info"]["given_name"]&.downcase ||
@@ -106,10 +115,28 @@ class AuthController < ApplicationController
 
     if user&.persisted?
       session[:user_id] = user.id
-      redirect_to frontend_url
+      Rails.logger.info "User authenticated successfully. User ID: #{user.id}"
+
+      # Get the origin URL from the session or omniauth params
+      origin = request.env["omniauth.origin"] || session.delete(:return_to)
+      Rails.logger.info "Redirect origin: #{origin}"
+
+      # If origin is from GitHub Pages, redirect there, otherwise use default frontend_url
+      redirect_url = if origin&.include?("john-plough.github.io")
+        Rails.logger.info "Redirecting to GitHub Pages origin"
+        origin
+      else
+        Rails.logger.info "Redirecting to default frontend_url: #{frontend_url}"
+        frontend_url
+      end
+
+      Rails.logger.info "Final redirect URL: #{redirect_url}"
+      redirect_to redirect_url
     else
+      Rails.logger.error "Failed to create/authenticate user"
       redirect_to "#{frontend_url}?error=Failed to create user"
     end
+    Rails.logger.info "========== End Google OAuth Debug =========="
   end
 
   def check
