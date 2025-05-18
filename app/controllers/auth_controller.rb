@@ -7,7 +7,7 @@ class AuthController < ApplicationController
     uid_field = "#{provider}_uid".to_sym
 
     # First try to find user by provider UID
-    user = User.find_by(uid_field => auth_hash["uid"])
+    user = User.find_by("#{provider}_uid" => auth_hash["uid"])
 
     unless user
       # Check if email is already taken
@@ -16,9 +16,9 @@ class AuthController < ApplicationController
       if existing_user
         Rails.logger.info "Found existing user with email #{existing_user.email}"
         # If user exists but doesn't have provider uid, verify email ownership
-        if existing_user.send(uid_field).nil? && auth_hash["info"]["email"] == existing_user.email
+        if existing_user.send("#{provider}_uid").nil? && auth_hash["info"]["email"] == existing_user.email
           Rails.logger.info "Linking #{provider} account to existing user"
-          existing_user.update(uid_field => auth_hash["uid"])
+          existing_user.update("#{provider}_uid" => auth_hash["uid"])
           user = existing_user
         else
           # Email exists but already linked to different provider
@@ -39,7 +39,7 @@ class AuthController < ApplicationController
           email: auth_hash["info"]["email"],
           username: username,
           password: SecureRandom.hex(20),
-          uid_field => auth_hash["uid"]
+          "#{provider}_uid" => auth_hash["uid"]
         )
       end
     end
