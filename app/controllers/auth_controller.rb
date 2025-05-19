@@ -10,7 +10,7 @@ class AuthController < ApplicationController
     user = User.find_by("#{provider}_uid" => auth_hash["uid"])
 
     unless user
-      # Check if email is already taken
+      # Check if email has already been taken
       existing_user = User.find_by(email: auth_hash["info"]["email"])
 
       if existing_user
