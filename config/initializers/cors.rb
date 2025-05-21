@@ -1,7 +1,7 @@
 # config/initializers/cors.rb
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "http://localhost:5173", "http://localhost:3000" # Your frontend's URLs in development
+    origins "localhost:5173", "localhost:3000", "honeymaker.onrender.com"
     resource "*",
              headers: :any,
              methods: [ :get, :post, :put, :patch, :delete, :options, :head ],

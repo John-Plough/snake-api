@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   post "/login" => "sessions#create"
   delete "/logout" => "sessions#destroy"
 
-  # Score routes - specific before general
+  # Score routes
   get "/scores/personal" => "scores#personal"
   get "/scores/global" => "scores#global"
   get "/users/:user_id/scores" => "scores#user_scores"
