@@ -9,12 +9,18 @@ class ScoresControllerTest < ActionDispatch::IntegrationTest
       password_confirmation: "password"
     )
 
-    payload = { user_id: @user.id }
-    @token = JWT.encode(payload, ApplicationController::JWT_SECRET, "HS256")
+    # Get CSRF token
+    get "/"
+    @csrf_token = cookies["CSRF-TOKEN"]
+
+    # Login the user
+    post "/login",
+         params: { email: "test@example.com", password: "password" },
+         headers: { "X-CSRF-Token" => @csrf_token }
   end
 
   test "index" do
-    get "/scores.json"
+    get "/scores", headers: { "X-CSRF-Token" => @csrf_token }
     assert_response :success
 
     data = JSON.parse(response.body)
@@ -23,19 +29,19 @@ class ScoresControllerTest < ActionDispatch::IntegrationTest
 
   test "create" do
     assert_difference "Score.count", 1 do
-      post "/scores.json",
-           params: { value: 10 },
-           headers: { "Authorization" => "Bearer #{@token}" }
+      post "/scores",
+           params: { score: { value: 10 } },
+           headers: { "X-CSRF-Token" => @csrf_token }
       assert_response :success
     end
   end
 
   test "should create score with json format" do
-    post "/scores.json",
-         params: { value: 100 }.to_json,
+    post "/scores",
+         params: { score: { value: 100 } }.to_json,
          headers: {
-           "Authorization" => "Bearer #{@token}",
-           "Content-Type" => "application/json"
+           "Content-Type" => "application/json",
+           "X-CSRF-Token" => @csrf_token
          }
     assert_response :success
   end

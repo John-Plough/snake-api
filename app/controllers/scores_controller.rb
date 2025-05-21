@@ -3,8 +3,8 @@ class ScoresController < ApplicationController
   before_action :authenticate_user, except: [ :global ]
 
   def index
-    @scores = Score.includes(:user).order(value: :desc).limit(10)
-    render :index
+    scores = Score.includes(:user).order(value: :desc).limit(10)
+    render json: scores
   end
 
   def create

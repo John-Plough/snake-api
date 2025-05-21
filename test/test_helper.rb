@@ -13,3 +13,15 @@ module ActiveSupport
     # Add more helper methods to be used by all tests here...
   end
 end
+
+class ActionDispatch::IntegrationTest
+  def get_csrf_token
+    get "/"
+    cookies["CSRF-TOKEN"]
+  end
+end
+
+# Disable CSRF protection in tests
+class ApplicationController
+  skip_before_action :verify_authenticity_token
+end
