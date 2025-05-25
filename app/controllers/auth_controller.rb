@@ -28,7 +28,7 @@ class AuthController < ApplicationController
         else
           # Email exists but already linked to different provider
           Rails.logger.warn "Email conflict: #{auth_hash["info"]["email"]} already exists"
-          return redirect_to "#{frontend_url}?error=Email already registered with a different account"
+          return redirect_to "#{frontend_url}?error=Email already registered with a different account", allow_other_host: true
         end
       else
         # Create new user if email not taken
@@ -51,9 +51,9 @@ class AuthController < ApplicationController
 
     if user&.persisted?
       cookies.signed[:user_id] = { value: user.id }.merge(cookie_settings)
-      redirect_to frontend_url
+      redirect_to frontend_url, allow_other_host: true
     else
-      redirect_to "#{frontend_url}?error=Failed to create user"
+      redirect_to "#{frontend_url}?error=Failed to create user", allow_other_host: true
     end
   end
 
