@@ -18,8 +18,4 @@ Rails.application.routes.draw do
   get "/auth/:provider/callback", to: "auth#oauth_callback"
   post "/auth/:provider", to: "auth#oauth"
   get "/auth/check", to: "auth#check"
-
-  if Rails.env.production?
-    get "/run_migrations", to: "application#run_migrations"
-  end
 end

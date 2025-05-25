@@ -16,21 +16,7 @@ class ApplicationController < ActionController::Base
     @current_user ||= User.find_by(id: cookies.signed[:user_id]) if cookies.signed[:user_id]
   end
 
-  # TEMPORARY: Run migrations in production via web request
-  def run_migrations
-    if Rails.env.production?
-      begin
-        require "rake"
-        Rails.application.load_tasks
-        Rake::Task["db:migrate"].invoke
-        render plain: "Migrations ran successfully!"
-      rescue => e
-        render plain: "Migration error: #{e.message}"
-      end
-    else
-      render plain: "Not allowed"
-    end
-  end
+  # Removed run_migrations action for security
 
   # private
 
