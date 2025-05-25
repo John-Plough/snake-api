@@ -16,6 +16,20 @@ class ApplicationController < ActionController::Base
     @current_user ||= User.find_by(id: cookies.signed[:user_id]) if cookies.signed[:user_id]
   end
 
+  # TEMPORARY: Run migrations in production via web request
+  def run_migrations
+    if Rails.env.production?
+      begin
+        ActiveRecord::Base.connection.migration_context.migrate
+        render plain: "Migrations ran successfully!"
+      rescue => e
+        render plain: "Migration error: #{e.message}"
+      end
+    else
+      render plain: "Not allowed"
+    end
+  end
+
   # private
 
   # def set_csrf_cookie
