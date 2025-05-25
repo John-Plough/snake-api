@@ -20,7 +20,7 @@ class ApplicationController < ActionController::Base
   def run_migrations
     if Rails.env.production?
       begin
-        ActiveRecord::Base.connection.migration_context.migrate
+        ActiveRecord::Migrator.migrate(ActiveRecord::Migrator.migrations_paths)
         render plain: "Migrations ran successfully!"
       rescue => e
         render plain: "Migration error: #{e.message}"
