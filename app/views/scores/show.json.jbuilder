@@ -1,4 +1,1 @@
-json.id          @score.id
-json.value       @score.value
-json.username    @score.user.username
-json.created_at  @score.created_at
+json.partial! "scores/score", score: @score

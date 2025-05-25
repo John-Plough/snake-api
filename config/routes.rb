@@ -6,11 +6,13 @@ Rails.application.routes.draw do
   delete "/logout" => "sessions#destroy"
 
   # Score routes
-  get "/scores/personal" => "scores#personal"
-  get "/scores/global" => "scores#global"
+  resources :scores, only: [ :index, :show, :create, :update, :destroy ] do
+    collection do
+      get "personal"
+      get "global"
+    end
+  end
   get "/users/:user_id/scores" => "scores#user_scores"
-  get "/scores" => "scores#index"
-  post "/scores" => "scores#create"
 
   # OAuth routes
   get "/auth/:provider/callback", to: "auth#oauth_callback"

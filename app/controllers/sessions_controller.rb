@@ -1,10 +1,12 @@
 # app/controllers/sessions_controller.rb
 class SessionsController < ApplicationController
+  COOKIE_SETTINGS = { secure: true, same_site: "None", httponly: true }
+
   def create
     user = User.find_by(email: params[:email])
 
     if user&.authenticate(params[:password])
-      session[:user_id] = user.id
+      cookies.signed[:user_id] = { value: user.id }.merge(COOKIE_SETTINGS)
       render json: {
         user: {
           id: user.id,
@@ -18,7 +20,7 @@ class SessionsController < ApplicationController
   end
 
   def destroy
-    session.delete(:user_id)
+    cookies.delete(:user_id, COOKIE_SETTINGS)
     render json: { message: "Logged out" }, status: :ok
   end
 end

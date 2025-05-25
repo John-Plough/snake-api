@@ -1,9 +1,10 @@
-class ApplicationController < ActionController::API
-  include ActionController::Cookies
-  include ActionController::RequestForgeryProtection
+class ApplicationController < ActionController::Base
+  protect_from_forgery with: :exception, unless: -> { request.format.json? }
+  # include ActionController::Cookies
+  # include ActionController::RequestForgeryProtection
 
-  protect_from_forgery with: :exception
-  before_action :set_csrf_cookie
+  # protect_from_forgery with: :exception
+  # before_action :set_csrf_cookie
 
   def authenticate_user
     unless current_user
@@ -12,12 +13,12 @@ class ApplicationController < ActionController::API
   end
 
   def current_user
-    @current_user ||= User.find_by(id: session[:user_id]) if session[:user_id]
+    @current_user ||= User.find_by(id: cookies.signed[:user_id]) if cookies.signed[:user_id]
   end
 
-  private
+  # private
 
-  def set_csrf_cookie
-    cookies["CSRF-TOKEN"] = form_authenticity_token
-  end
+  # def set_csrf_cookie
+  #   cookies["CSRF-TOKEN"] = form_authenticity_token
+  # end
 end

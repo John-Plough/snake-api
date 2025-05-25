@@ -1,40 +1,75 @@
 class ScoresController < ApplicationController
   include ActionController::Cookies
-  before_action :authenticate_user, except: [ :global ]
+  before_action :authenticate_user, except: [ :index, :global ]
 
   def index
-    scores = Score.includes(:user).order(value: :desc).limit(10)
-    render json: scores
+    @scores = Score.includes(:user).order(value: :desc).limit(10)
+    render :index
   end
 
   def create
-    score = @current_user.scores.create!(score_params)
-    render json: score, status: :created
+    @score = @current_user.scores.build(score_params)
+    if @score.save
+      render :show, status: :created
+    else
+      render json: { errors: @score.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def show
+    @score = Score.find_by(id: params[:id])
+    if @score
+      render :show
+    else
+      render json: { error: "Score not found" }, status: :not_found
+    end
+  end
+
+  def update
+    @score = @current_user.scores.find_by(id: params[:id])
+    if @score
+      if @score.update(score_params)
+        render :show
+      else
+        render json: { errors: @score.errors.full_messages }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: "Score not found" }, status: :not_found
+    end
+  end
+
+  def destroy
+    @score = @current_user.scores.find_by(id: params[:id])
+    if @score
+      @score.destroy
+      render json: { message: "Score deleted successfully" }
+    else
+      render json: { error: "Score not found" }, status: :not_found
+    end
   end
 
   def personal
-    scores = @current_user.scores
-                        .order(value: :desc)
-                        .limit(6)
-                        .select("scores.*, users.username")
-                        .joins(:user)
-    render json: scores
+    @scores = @current_user.scores
+                         .order(value: :desc)
+                         .limit(6)
+                         .select("scores.*, users.username")
+                         .joins(:user)
+    render :index
   end
 
   def global
-    scores = Score.order(value: :desc)
-                 .limit(6)
-                 .select("scores.*, users.username")
-                 .joins(:user)
-    render json: scores
+    @scores = Score.order(value: :desc)
+                  .limit(6)
+                  .select("scores.*, users.username")
+                  .joins(:user)
+    render :index
   end
 
   def user_scores
     user = User.find_by(id: params[:user_id])
-
     if user
-      scores = user.scores.order(created_at: :desc)
-      render json: scores
+      @scores = user.scores.order(created_at: :desc)
+      render :index
     else
       render json: { error: "User not found" }, status: :not_found
     end

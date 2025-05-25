@@ -29,11 +29,11 @@ class AuthController < ApplicationController
         # Create new user if email not taken
         username = if provider == "github"
                     auth_hash["info"]["nickname"]
-                  else
+        else
                     auth_hash["info"]["given_name"]&.downcase ||
                       auth_hash["info"]["name"]&.split(" ")&.first&.downcase ||
                       auth_hash["info"]["email"].split("@").first
-                  end
+        end
 
         user = User.create(
           email: auth_hash["info"]["email"],
@@ -47,7 +47,7 @@ class AuthController < ApplicationController
     frontend_url = ENV["FRONTEND_URL"] || "http://localhost:5173"
 
     if user&.persisted?
-      session[:user_id] = user.id
+      cookies.signed[:user_id] = { value: user.id }.merge(cookie_settings)
       redirect_to frontend_url
     else
       redirect_to "#{frontend_url}?error=Failed to create user"
@@ -70,5 +70,13 @@ class AuthController < ApplicationController
 
   def frontend_url
     ENV["FRONTEND_URL"] || "http://localhost:5173"
+  end
+
+  def cookie_settings
+    if Rails.env.test?
+      { httponly: true }
+    else
+      { httponly: true, secure: true, same_site: "None" }
+    end
   end
 end
