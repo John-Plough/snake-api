@@ -1,4 +1,9 @@
 class AuthController < ApplicationController
+  ALLOWED_FRONTENDS = [
+    "http://localhost:5173",
+    "https://honeymaker.onrender.com"
+  ]
+
   def oauth_callback
     auth_hash = request.env["omniauth.auth"]
     Rails.logger.info "OAuth Info: #{auth_hash["info"].inspect}"
@@ -44,8 +49,6 @@ class AuthController < ApplicationController
       end
     end
 
-    frontend_url = ENV["FRONTEND_URL"] || "http://localhost:5173"
-
     if user&.persisted?
       cookies.signed[:user_id] = { value: user.id }.merge(cookie_settings)
       redirect_to frontend_url
@@ -69,7 +72,12 @@ class AuthController < ApplicationController
   private
 
   def frontend_url
-    ENV["FRONTEND_URL"] || "http://localhost:5173"
+    origin = request.headers["Origin"] || request.headers["Referer"]
+    if ALLOWED_FRONTENDS.include?(origin)
+      origin
+    else
+      ENV["FRONTEND_URL"] || ALLOWED_FRONTENDS.first
+    end
   end
 
   def cookie_settings
