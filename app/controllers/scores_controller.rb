@@ -50,18 +50,16 @@ class ScoresController < ApplicationController
 
   def personal
     @scores = @current_user.scores
+                         .includes(:user)
                          .order(value: :desc)
                          .limit(6)
-                         .select("scores.*, users.username")
-                         .joins(:user)
     render :index
   end
 
   def global
-    @scores = Score.order(value: :desc)
+    @scores = Score.includes(:user)
+                  .order(value: :desc)
                   .limit(6)
-                  .select("scores.*, users.username")
-                  .joins(:user)
     render :index
   end
 

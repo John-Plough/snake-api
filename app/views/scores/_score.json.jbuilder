@@ -1,4 +1,4 @@
-json.rank index + 1
+json.rank index + 1 if index
 json.id score.id
 json.value score.value
 json.created_at score.created_at
