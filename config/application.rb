@@ -3,7 +3,7 @@ require_relative "boot"
 require "rails/all"
 
 # Load dotenv before other configuration
-require 'dotenv'
+require "dotenv"
 Dotenv.load
 
 # Require the gems listed in Gemfile, including any gems
@@ -17,13 +17,14 @@ module SnakeApi
 
     # Enable cookie middleware
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore
+    config.session_store :cookie_store, key: "_snake_api_session", same_site: :none, secure: true
+    config.middleware.use ActionDispatch::Session::CookieStore, config.session_options
 
     # Configure CORS
     config.action_controller.allow_forgery_protection = false
 
     # Configure cookie settings
-    config.action_dispatch.cookies_same_site_protection = :lax
+    # config.action_dispatch.cookies_same_site_protection = :lax
 
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
