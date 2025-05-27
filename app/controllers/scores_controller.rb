@@ -10,7 +10,15 @@ class ScoresController < ApplicationController
   def create
     @score = @current_user.scores.build(score_params)
     if @score.save
-      render :show, status: :created
+      render json: {
+        id: @score.id,
+        value: @score.value,
+        created_at: @score.created_at,
+        user: {
+          id: @current_user.id,
+          username: @current_user.username
+        }
+      }, status: :created
     else
       render json: { errors: @score.errors.full_messages }, status: :unprocessable_entity
     end
